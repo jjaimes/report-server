@@ -1,5 +1,14 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { PrinterService } from 'src/printer/printer.service';
+
+import { 
+    getCountryReport, 
+    getEmploymentLetterByIdReport,
+    getEmploymentLetterReport,
+    getHelloDarioReport 
+} from 'src/reports';
+
 
 @Injectable()
 export class BasicReportsService extends PrismaClient implements OnModuleInit{
@@ -7,9 +16,59 @@ export class BasicReportsService extends PrismaClient implements OnModuleInit{
         await this.$connect();
         // console.log('Connected to the DB');
     }
+    constructor(private readonly printerService: PrinterService) {
+        super();
+    }
 
-    async hello() {
-        return this.employees.findFirst();
+    hello() {
+        const docDefinition = getHelloDarioReport({
+            name: 'Darío JAIMES ALVIÁREZ'
+        });
+
+        const doc = this.printerService.createPdf(docDefinition);
+        return doc;
+
+    }
+
+    employmentLetter(){
+        const docDefinition = getEmploymentLetterReport();
+
+        const doc = this.printerService.createPdf(docDefinition);
+        return doc;
+    }
+
+    async employmentLetterById(employeeId: number){
+        const employee = await this.employees.findUnique({
+            where: {
+                id: employeeId,
+            },
+        });
+
+        console.log( employee );
+
+        if ( !employee ) {
+            throw new NotFoundException(`Employee with id ${employeeId} not found`);
+        }
+
+        const docDefinition = getEmploymentLetterByIdReport({
+            employerName: 'Fernando Herrera',
+            employerPosition: 'Software Engineer',
+            employeeName: employee.name,
+            employeePosition: employee.position,
+            employeeStartDate: employee.start_date,
+            employeeHours: employee.hours_per_day,
+            employeeWorkSchedule: employee.work_schedule,
+            employerCompany: 'Tucan Code Corp.',
+        });
+        const doc = this.printerService.createPdf(docDefinition);
+        return doc;
+    }
+
+    async getCountries() {
+        const docDefinition = getCountryReport();
+
+        return this.printerService.createPdf(docDefinition);
+        // return doc;
     }
 }
 
