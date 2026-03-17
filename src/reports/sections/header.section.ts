@@ -42,6 +42,7 @@ export const headerSection = (options: HeaderOptions): Content => {
 
     const headerTitle: Content = title 
         ?  { stack: [ 
+                //TITLE
                 {
                     text: title,
                     alignment: 'center',

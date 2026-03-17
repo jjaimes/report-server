@@ -29,7 +29,10 @@ export class BasicReportsController {
   }
 
   @Get('employment-letter/:employeeId')
-  async employmentLetterById( @Res() response: Response, @Param('employeeId') employeeId: string){
+  async employmentLetterById( 
+    @Res() response: Response, 
+    @Param('employeeId'
+  ) employeeId: string){
     const pdfDoc = await this.basicReportsService.employmentLetterById(+employeeId);
 
     response.setHeader('Content-Type', 'application/pdf');
